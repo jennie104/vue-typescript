@@ -1,29 +1,51 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+    <Nav :books="books" />
+    <BookList :books="books" />
+    <BookForm />
   </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import HelloWorld from "./components/HelloWorld.vue";
+import { defineComponent, watch, computed } from "@vue/composition-api";
+import { Store } from "vuex";
+import { BooksState } from "./types/interfaces";
+import Nav from "./components/Nav.vue";
+import BookList from "./components/BookList.vue";
+import BookForm from "./components/BookForm.vue";
 
-export default Vue.extend({
-  name: "App",
+export default defineComponent({
   components: {
-    HelloWorld
+    Nav,
+    BookForm,
+    BookList
+  },
+  setup(props, context) {
+    const store: Store<BooksState> = context.root.$store;
+    const books = computed(() => store.state.books);
+    store.commit("initBooks");
+    watch(
+      () => books,
+      () => {
+        localStorage.setItem("books", JSON.stringify(books));
+      }
+    );
+    return {
+      books
+    };
   }
 });
 </script>
 
 <style lang="scss">
+body {
+  margin: 0;
+  background: lighten($color: #6a6a6a, $amount: 15);
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  margin: 0;
+  max-width: 100%;
+  min-height: 100vh;
 }
 </style>
